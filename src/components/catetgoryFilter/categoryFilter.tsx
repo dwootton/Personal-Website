@@ -1,11 +1,10 @@
 import React, { useRef, useMemo } from "react"
-import { Link } from "gatsby"
 import type { GatsbyLinkProps } from "gatsby"
 import styled from "styled-components"
 import kebabCase from "lodash/kebabCase"
 
 import useScrollCenter from "./useScrollCenter"
-
+import { useQueryParamString } from "react-use-query-param-string"
 const ACTIVE = "active"
 const ALL_CATEGORY_NAME = "All"
 
@@ -13,12 +12,9 @@ interface CategoryFilterProps {
   categoryList: readonly Queries.MarkdownRemarkGroupConnection[]
 }
 
-type LinkPropsGetter = GatsbyLinkProps<unknown>["getProps"]
-
 const CategoryFilter: React.FC<CategoryFilterProps> = ({ categoryList }) => {
   const categoryRef = useRef<HTMLUListElement>(null)
-  const isActive: LinkPropsGetter = ({ isCurrent }) =>
-    isCurrent ? { id: ACTIVE, tabIndex: -1 } : {}
+  const [category, setCategory] = useQueryParamString("category", "")
 
   useScrollCenter({ ref: categoryRef, targetId: ACTIVE })
 
@@ -30,20 +26,34 @@ const CategoryFilter: React.FC<CategoryFilterProps> = ({ categoryList }) => {
   return (
     <Nav aria-label="Category Filter">
       <CategoryTitle>Category</CategoryTitle>
-      <CategoryButton getProps={isActive} to="/">
+      <CategoryButton
+        style={
+          category == ""
+            ? { background: "var(--color-blue)", color: "var(--color-white)" }
+            : {}
+        }
+        onClick={() => setCategory("")}
+      >
         {ALL_CATEGORY_NAME}
       </CategoryButton>
       <Divider />
       <CategoryUl ref={categoryRef} className="invisible-scrollbar">
-        {sortedCategoryList.map(category => {
-          const { fieldValue } = category
+        {sortedCategoryList.map((groupedCategory, i) => {
+          const categoryType = groupedCategory.fieldValue as string
           return (
-            <li key={fieldValue}>
+            <li key={i}>
               <CategoryButton
-                getProps={isActive}
-                to={`/category/${kebabCase(fieldValue!)}/`}
+                style={
+                  categoryType == category
+                    ? {
+                        background: "var(--color-blue)",
+                        color: "var(--color-white)",
+                      }
+                    : {}
+                }
+                onClick={() => setCategory(categoryType)}
               >
-                {fieldValue}
+                {categoryType}
               </CategoryButton>
             </li>
           )
@@ -60,7 +70,8 @@ const Nav = styled.nav`
   margin-bottom: 48px;
   padding: 12px var(--sizing-md);
   border-radius: var(--border-radius-base);
-
+  scrollbar-width: none;
+  scrollbar-height: none;
   a#active {
     color: var(--color-white);
     background-color: var(--color-blue);
@@ -94,7 +105,7 @@ const CategoryTitle = styled.em`
   }
 `
 
-const CategoryButton = styled(Link)`
+const CategoryButton = styled.div`
   cursor: pointer;
   display: block;
   background-color: var(--color-category-button);
@@ -135,6 +146,12 @@ const CategoryUl = styled.ul`
 
   li + li {
     margin-left: 6px;
+  }
+
+  &::-webkit-scrollbar {
+    background: transparent; /* Chrome/Safari/Webkit */
+    width: 0px;
+    height: 0px;
   }
 `
 

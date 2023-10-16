@@ -4,7 +4,6 @@ import styled from "styled-components"
 
 import Layout from "Layouts/layout"
 import SEO from "Components/seo"
-import Comment from "Components/comment"
 import { rhythm } from "Styles/typography"
 import Category from "Styles/category"
 import DateTime from "Styles/dateTime"
@@ -13,11 +12,22 @@ import Markdown from "Styles/markdown"
 const BlogPost: React.FC<PageProps<Queries.Query>> = ({ data }) => {
   const { markdownRemark } = data
   const { frontmatter, html } = markdownRemark!
-  const { title, desc, thumbnail, date, category } = frontmatter!
+  const {
+    title,
+    desc,
+    thumbnail,
+    date,
+    category,
+    demoLink,
+    githubLink,
+    paperLink,
+    liveLink,
+  } = frontmatter!
 
   const ogImagePath =
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    thumbnail && thumbnail?.childImageSharp?.gatsbyImageData!.images!.fallback!.src
+    thumbnail &&
+    thumbnail?.childImageSharp?.gatsbyImageData!.images!.fallback!.src
 
   return (
     <Layout>
@@ -29,8 +39,26 @@ const BlogPost: React.FC<PageProps<Queries.Query>> = ({ data }) => {
               <div>
                 <header>
                   <Info>
-                    <PostCategory>{category}</PostCategory>
-                    <Time dateTime={date!}>{date}</Time>
+                    <InfoColumn>
+                      <ColumnHeader>{"Information"}</ColumnHeader>
+                      <PostCategory>{category}</PostCategory>
+                      <Time>{date}</Time>
+                    </InfoColumn>
+                    <MaterialsColumn>
+                      <ColumnHeader>{"Materials"}</ColumnHeader>
+                      {demoLink && (
+                        <MaterialLink href={demoLink}>Demo</MaterialLink>
+                      )}
+                      {paperLink && (
+                        <MaterialLink href={paperLink}>Paper</MaterialLink>
+                      )}
+                      {liveLink && (
+                        <MaterialLink href={liveLink}>Website</MaterialLink>
+                      )}
+                      {githubLink && (
+                        <MaterialLink href={githubLink}>Github</MaterialLink>
+                      )}
+                    </MaterialsColumn>
                   </Info>
                   <Title>{title}</Title>
                   <Desc>{desc}</Desc>
@@ -44,9 +72,6 @@ const BlogPost: React.FC<PageProps<Queries.Query>> = ({ data }) => {
             </InnerWrapper>
           </OuterWrapper>
         </article>
-        <CommentWrap>
-          <Comment />
-        </CommentWrap>
       </main>
     </Layout>
   )
@@ -85,15 +110,31 @@ const PostCategory = styled(Category)`
   font-size: 0.875rem;
   font-weight: var(--font-weight-semi-bold);
 `
-
+const MaterialsColumn = styled.div`
+  display: grid;
+  justify-content: end;
+`
+const InfoColumn = styled.div`
+  display: block;
+`
+const ColumnHeader = styled.div`
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semi-bold);
+  justify-self: end;
+`
+const MaterialLink = styled.a`
+  justify-self: end;
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-3);
+`
 const Info = styled.div`
   margin-bottom: var(--sizing-md);
+  display: grid;
+  grid-template-columns: 50% 50%;
 `
 
-const Time = styled(DateTime)`
-  display: block;
-  margin-top: var(--sizing-xs);
-`
+const Time = styled(DateTime)``
 
 const Desc = styled.p`
   margin-top: var(--sizing-lg);
@@ -131,7 +172,7 @@ const Title = styled.h1`
 `
 
 export const query = graphql`
-  query BlogPostPage ($slug: String!) {
+  query ProjectsPostPage($slug: String!) {
     markdownRemark(fields: { slug: { eq: $slug } }) {
       html
       frontmatter {
@@ -142,8 +183,12 @@ export const query = graphql`
             gatsbyImageData(placeholder: BLURRED, layout: FIXED)
           }
         }
-        date(formatString: "YYYY-MM-DD")
+        date(formatString: "YYYY")
         category
+        demoLink
+        paperLink
+        githubLink
+        liveLink
       }
     }
   }

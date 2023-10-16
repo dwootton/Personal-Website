@@ -15,6 +15,7 @@ import useMenu from "./useMenu"
 import LinkList from "./linkList"
 import ThemeToggleButton from "./themeToggleButton"
 import MenuIcon from "./menuIcon"
+import Logo from "./logo"
 
 interface NavBarProps {
   title?: string | null
@@ -40,7 +41,9 @@ const NavBar: React.FC<NavBarProps> = ({ title, themeToggler }) => {
       <NavBackground toggle={toggle} />
       <Content>
         <Title onClick={() => setToggle(false)}>
-          <Link to="/">{title}</Link>
+          <Link to="/">
+            <Logo />
+          </Link>
         </Title>
         <LinkWrap>
           <Curtain ref={curtainRef} toggle={toggle} />
@@ -74,7 +77,7 @@ const Nav = styled.nav`
     text-decoration: none;
   }
 `
-
+// convert these styles into tailwind v3 styles
 const Content = styled.div`
   box-sizing: content-box;
   position: relative;
@@ -113,7 +116,7 @@ const Title = styled.h1`
     font-size: var(--text-md);
   }
 `
-
+// convert these styles into tailwind v3 styles
 const LinkUl = styled.ul<Toggleable>`
   display: flex;
 

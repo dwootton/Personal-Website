@@ -1,133 +1,65 @@
-import React, { useState, useLayoutEffect } from "react"
-import type { PageProps } from "gatsby"
-import { graphql } from "gatsby"
+import React from "react"
+import { graphql, useStaticQuery } from "gatsby"
 import styled from "styled-components"
 
-import type Post from "Types/Post"
-import useSiteMetadata from "Hooks/useSiteMetadata"
 import Layout from "Layouts/layout"
 import SEO from "Components/seo"
-import PostGrid from "Components/postGrid"
-import CategoryFilter from "Components/catetgoryFilter"
+import Markdown from "Styles/markdown"
+import { rhythm } from "Styles/typography"
+import BackgroundParticles from "Components/particles"
 
-const Home = ({
-  pageContext,
-  data,
-}: PageProps<Queries.Query, Queries.MarkdownRemarkFrontmatter>) => {
-  const [posts, setPosts] = useState<Post[]>([])
-  const currentCategory = pageContext.category
-  const postData = data.allMarkdownRemark.edges
+const Home = () => {
+  const data = useStaticQuery<Queries.Query>(graphql`
+    query Home {
+      allMarkdownRemark(filter: { fileAbsolutePath: { regex: "/home/" } }) {
+        edges {
+          node {
+            html
+          }
+        }
+      }
+    }
+  `)
 
-  useLayoutEffect(() => {
-    const filteredPostData = currentCategory
-      ? postData.filter(
-          ({ node }) => node?.frontmatter?.category === currentCategory
-        )
-      : postData
-
-    filteredPostData.forEach(({ node }) => {
-      const { id } = node
-      const { slug } = node.fields!
-      const { title, desc, date, category, thumbnail, alt } = node.frontmatter!
-      const { childImageSharp } = thumbnail!
-
-      setPosts(prevPost => [
-        ...prevPost,
-        {
-          id,
-          slug,
-          title,
-          desc,
-          date,
-          category,
-          thumbnail: childImageSharp?.id,
-          alt,
-        },
-      ])
-    })
-  }, [currentCategory, postData])
-
-  const site = useSiteMetadata()
-  const postTitle = currentCategory || site.postTitle
+  const markdown = data.allMarkdownRemark.edges[0].node.html
 
   return (
     <Layout>
-      <SEO title="Home" />
-      <Main>
-        <Content>
-          <CategoryFilter categoryList={data.allMarkdownRemark.group} />
-          <PostTitle>{postTitle}</PostTitle>
-          <PostGrid posts={posts} />
-        </Content>
-      </Main>
+      <SEO title="About" />
+      <Container rhythm={rhythm}>
+        <h5 style={{ textTransform: "uppercase", color: "gray" }}>
+          Dylan Wootton
+        </h5>
+        <h1>Interaction Designer and Researcher</h1>
+        <div dangerouslySetInnerHTML={{ __html: markdown ?? "" }}></div>
+      </Container>
     </Layout>
   )
 }
 
-const Main = styled.main`
-  min-width: var(--min-width);
-  min-height: calc(100vh - var(--nav-height) - var(--footer-height));
-  background-color: var(--color-background);
-`
-
-const Content = styled.div`
-  box-sizing: content-box;
-  width: 87.5%;
-  max-width: var(--width);
-  padding-top: var(--sizing-lg);
-  padding-bottom: var(--sizing-lg);
+const Container = styled(Markdown).attrs({
+  as: "main",
+})`
+  width: var(--post-width);
   margin: 0 auto;
-
+  margin-top: 80px;
+  margin-bottom: 6rem;
   @media (max-width: ${({ theme }) => theme.device.sm}) {
-    padding-top: var(--grid-gap-lg);
+    margin-top: var(--sizing-xl);
     width: 87.5%;
   }
-`
-
-const PostTitle = styled.h2`
-  font-size: 2rem;
-  font-weight: var(--font-weight-extra-bold);
-  margin-bottom: var(--sizing-md);
-  line-height: 1.21875;
-
-  @media (max-width: ${({ theme }) => theme.device.sm}) {
-    font-size: 1.75rem;
+  h1 {
+    margin-bottom: 2rem;
   }
-`
-
-export const query = graphql`
-  query Home {
-    allMarkdownRemark(
-      filter: { fileAbsolutePath: { regex: "/(posts/blog)/" } }
-      limit: 2000
-      sort: { frontmatter: { date: DESC } }
-    ) {
-      group(field: { frontmatter: { category: SELECT } }) {
-        fieldValue
-        totalCount
-      }
-      totalCount
-      edges {
-        node {
-          id
-          frontmatter {
-            title
-            category
-            date(formatString: "YYYY-MM-DD")
-            desc
-            thumbnail {
-              childImageSharp {
-                id
-              }
-              base
-            }
-            alt
-          }
-          fields {
-            slug
-          }
-        }
-      }
+  h2 {
+    margin-top: var(--sizing-lg);
+    @media (max-width: ${({ theme }) => theme.device.sm}) {
+      font-size: 1.75rem;
+    }
+  }
+  h3 {
+    @media (max-width: ${({ theme }) => theme.device.sm}) {
+      font-size: 1.25rem;
     }
   }
 `

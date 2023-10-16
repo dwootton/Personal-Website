@@ -16,22 +16,23 @@ const siteMetadata = {
       name: "Home",
     },
     {
-      link: "/about/",
-      name: "About",
+      link: "/projects/",
+      name: "Projects",
     },
+
     {
       link: meta.links.github,
       name: "Github",
     },
   ],
 }
-
+// NOTE: these must be in order from more specific to least specific!
 const corePlugins = [
   {
     resolve: "gatsby-source-filesystem",
     options: {
-      name: "src",
-      path: `${__dirname}/src`,
+      name: "gallery",
+      path: `${__dirname}/src/images/gallery`,
     },
   },
   {
@@ -39,6 +40,13 @@ const corePlugins = [
     options: {
       name: "images",
       path: `${__dirname}/src/images`,
+    },
+  },
+  {
+    resolve: "gatsby-source-filesystem",
+    options: {
+      name: "src",
+      path: `${__dirname}/src`,
     },
   },
 ]
@@ -111,6 +119,17 @@ const markdownPlugins = [
   },
 ]
 
+const mdxPlugins = [
+  `gatsby-plugin-mdx`,
+  {
+    resolve: `gatsby-source-filesystem`,
+    options: {
+      name: `pages`,
+      path: `${__dirname}/src/pages`,
+    },
+  },
+]
+
 const searchPlugins = [
   "gatsby-plugin-sitemap",
   "gatsby-plugin-robots-txt",
@@ -145,7 +164,7 @@ const searchPlugins = [
           query: `
             {
               allMarkdownRemark(
-                filter: { fileAbsolutePath: { regex: "/(posts/blog)/" } }
+                filter: { fileAbsolutePath: { regex: "/(posts/projects)/" } }
                 sort: { frontmatter: { date: DESC } }
               ) {
                 edges {
@@ -201,5 +220,6 @@ module.exports = {
     ...markdownPlugins,
     ...searchPlugins,
     ...pwaPlugins,
+    ...mdxPlugins,
   ],
 }

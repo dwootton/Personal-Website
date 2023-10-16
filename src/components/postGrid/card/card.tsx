@@ -28,7 +28,7 @@ const Card: React.FC<CardProps> = ({
           <Title>{title}</Title>
           <Desc>{desc}</Desc>
         </div>
-        <DateTime dateTime={date}>{date}</DateTime>
+        <DateTime>{date}</DateTime>
       </Text>
     </Wrapper>
   )

@@ -4,7 +4,6 @@ import styled from "styled-components"
 
 import type Post from "Types/Post"
 import Card from "./card"
-import useInfiniteScroll from "./useInfiniteScroll"
 import { ThumbnailWrapper } from "./card/centeredImg"
 
 interface PostGridProps {
@@ -13,16 +12,10 @@ interface PostGridProps {
 
 const PostGrid: React.FC<PostGridProps> = ({ posts }) => {
   const scrollEdgeRef = useRef<HTMLDivElement>(null)
-  const currentList = useInfiniteScroll({
-    posts,
-    scrollEdgeRef,
-    maxPostNum: 10,
-    offsetY: 200,
-  })
 
   return (
     <Grid role="list">
-      {currentList.map(data => {
+      {posts.map(data => {
         const { id, slug, title, desc, date, category, thumbnail, alt } = data
         const ariaLabel = `${title} - ${category} - Posted on ${date}`
         return (
